@@ -1,0 +1,27 @@
+server:
+  port: 9010
+spring:
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: order-submission-consumer
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: true
+      isolation:
+        level: read_committed
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      enable:
+        idempotence: true
+      transaction:
+        id: prod-1
+
+order-submission:
+  topic-name: orders
+  num-partitions: 500
+  num-replicas: 1
+  num-threads: 500
