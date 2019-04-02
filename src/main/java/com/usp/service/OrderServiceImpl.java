@@ -1,8 +1,10 @@
 package com.usp.service;
 
+import com.usp.engine.Consumer;
 import com.usp.engine.DltConsumer;
 import com.usp.engine.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -16,10 +18,16 @@ public class OrderServiceImpl implements OrderService {
     private  DltConsumer dltConsumer;
 
     @Autowired
+    private Consumer consumerDlt;
+
+    @Autowired
+    private KafkaListenerEndpointRegistry registry;
+
+
+    @Autowired
     OrderServiceImpl(Producer producer) {
         this.producer = producer;
     }
-
 
     @Override
     public Map<String, String> submit(String orderId) {
@@ -27,9 +35,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Map<String, String> submitRetry(String orderId) {
+    public void submitRetryStart() {
+        registry.getListenerContainer("consumeDlt").start();
+    }
 
-        dltConsumer.runSingleWorker();
-        return null;
+    @Override
+    public void submitRetryStop() {
+        registry.getListenerContainer("consumeDlt").stop();
     }
 }

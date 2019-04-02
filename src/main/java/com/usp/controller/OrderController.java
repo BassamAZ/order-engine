@@ -38,17 +38,25 @@ public class OrderController {
         return result;
     }
 
-    @PostMapping("/submit-retry")
-    public Map<String,String> submitRetry(@RequestBody  Map<String, String> order){
+    @PostMapping("/submit-retry-start")
+    public void submitRetryStart(){
 
-        logger.info(String.format("submitRetry started for order id %s ",order.get("orderId")));
+        logger.info(String.format("submitRetryStart started"));
 
-        Map<String,String> result=orderService.submitRetry(order.get("orderId"));
+        orderService.submitRetryStart();
 
+        logger.info(String.format("submitRetryStart finished"));
 
-        logger.info(String.format("submitRetry finished for order id %s ",order.get("orderId")));
+    }
 
-        return result;
+    @PostMapping("/submit-retry-stop")
+    public void submitRetryStop(){
+
+        logger.info(String.format("submitRetryStop started"));
+
+        orderService.submitRetryStop();
+
+        logger.info(String.format("submitRetryStop finished"));
     }
 
 }
