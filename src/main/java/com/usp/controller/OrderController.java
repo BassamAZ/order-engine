@@ -19,7 +19,7 @@ import java.util.Map;
 @RequestMapping ("/order")
 public class OrderController {
 
-    Logger logger= LoggerFactory.getLogger(OrderController.class);
+    private static final Logger logger= LoggerFactory.getLogger(OrderController.class);
 
     @Autowired
     OrderService orderService;
@@ -34,6 +34,19 @@ public class OrderController {
         result.put("id",order.get("id"));
 
         logger.info(String.format("submit finished for order id %s ",order.get("orderId")));
+
+        return result;
+    }
+
+    @PostMapping("/submit-retry")
+    public Map<String,String> submitRetry(@RequestBody  Map<String, String> order){
+
+        logger.info(String.format("submitRetry started for order id %s ",order.get("orderId")));
+
+        Map<String,String> result=orderService.submitRetry(order.get("orderId"));
+
+
+        logger.info(String.format("submitRetry finished for order id %s ",order.get("orderId")));
 
         return result;
     }

@@ -17,7 +17,7 @@ public class Producer {
     @Value("${order-submission.topic-name}")
     private String topicName;
 
-    private Logger logger= LoggerFactory.getLogger(Producer.class);
+    private static final Logger logger= LoggerFactory.getLogger(Producer.class);
 
     @Autowired
     KafkaTemplate<String, String > kafkaTemplate;

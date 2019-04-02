@@ -8,9 +8,12 @@ spring:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      enable-auto-commit: true
+      enable-auto-commit: false
       isolation:
         level: read_committed
+    listener:
+      ack-mode: manual_immediate
+
     producer:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -19,9 +22,20 @@ spring:
         idempotence: true
       transaction:
         id: prod-1
+      #retries: 2
+      #acks: 1
+
 
 order-submission:
   topic-name: orders
-  num-partitions: 500
+  topic-name-dlt: orders.DLT
+  group-id-dlt: order-submission-consumer-DLT
+  num-partitions: 4
   num-replicas: 1
-  num-threads: 500
+  num-threads: 4
+  retry-policy:
+    max-attempts: 4
+  backoff-policy:
+    initial-interval: 2000
+    multiplier: 2.0
+    max-interval: 60000
