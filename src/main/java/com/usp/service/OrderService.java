@@ -4,9 +4,9 @@ import java.util.Map;
 
 public interface OrderService {
 
-    public Map<String, String> submit(String orderId);
+    Map<String, String> submit(String orderId);
 
-    public void submitRetryStart();
+    void submitRetryStart();
 
-    public void submitRetryStop();
+    void submitRetryStop();
 }

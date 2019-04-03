@@ -111,10 +111,10 @@ public class OrderEngineApplication {
         SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy();
         simpleRetryPolicy.setMaxAttempts(Integer.valueOf(maxAttempts));
 
-        BackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
-        ((ExponentialBackOffPolicy) backOffPolicy).setInitialInterval(Integer.valueOf(initialInterval));
-        ((ExponentialBackOffPolicy) backOffPolicy).setMultiplier(Double.valueOf(multiplier));
-        ((ExponentialBackOffPolicy) backOffPolicy).setMaxInterval(Integer.valueOf(maxInterval));
+        ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
+        backOffPolicy.setInitialInterval(Integer.valueOf(initialInterval));
+        backOffPolicy.setMultiplier(Double.valueOf(multiplier));
+        backOffPolicy.setMaxInterval(Integer.valueOf(maxInterval));
 
         RetryTemplate aRetryTemplate = new RetryTemplate();
         aRetryTemplate.setRetryPolicy(simpleRetryPolicy);
