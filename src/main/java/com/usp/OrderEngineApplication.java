@@ -1,9 +1,12 @@
 package com.usp;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,6 +14,7 @@ import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerConta
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.adapter.RetryingMessageListenerAdapter;
 import org.springframework.retry.RecoveryCallback;
@@ -23,6 +27,7 @@ import org.springframework.retry.policy.TimeoutRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootApplication
@@ -47,6 +52,13 @@ public class OrderEngineApplication {
     private String multiplier;
     @Value("${order-submission.backoff-policy.max-interval}")
     private String maxInterval;
+
+    @Value(value = "${kafka.bootstrapAddress}")
+    private String bootstrapAddress;
+
+    @Value(value = "${order-submission.group-id}")
+    private String orderFulfillmentGroupId;
+
 
 
     public static void main(String[] args) {
@@ -79,34 +91,28 @@ public class OrderEngineApplication {
         return new NewTopic(topicDltName, Integer.valueOf(numPartitions), Short.valueOf(numReplicas));
     }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactory(
-            ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
-            ConsumerFactory<Object, Object> kafkaConsumerFactory,
-            KafkaTemplate<Object, Object> template) {
+   /* @Bean
+    public ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        configurer.configure(factory, kafkaConsumerFactory);
-        /*factory.setErrorHandler(new SeekToCurrentErrorHandler(
-                new DeadLetterPublishingRecoverer(template), 3));*/
 
         factory.setRetryTemplate(getRetryTemplateWithExpBOP());
-
+        factory.setConsumerFactory(consumerFactory(orderFulfillmentGroupId));
 
         factory.setRecoveryCallback(new RecoveryCallback<Object>() {
             @Override
             public Object recover(RetryContext retryContext) throws Exception {
                 ConsumerRecord message = (ConsumerRecord) retryContext.getAttribute(RetryingMessageListenerAdapter.CONTEXT_RECORD);
                 logger.info("recover callback for message " + message.value());
-                template.send(topicDltName, message.value());
+                kafkaTemplate.send(topicDltName, message.value().toString());
 
                 return null;
             }
         });
 
         return factory;
-    }
+    }*/
 
-    @Bean
+    /*@Bean
     public RetryTemplate getRetryTemplateWithExpBOP() {
         SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy();
         simpleRetryPolicy.setMaxAttempts(Integer.valueOf(maxAttempts));
@@ -122,7 +128,7 @@ public class OrderEngineApplication {
 
         return aRetryTemplate;
     }
-
+*/
     /**
      * Returns a retry template that always retries.  Starts with a second interval between retries and doubles that interval up
      * to a minute for each retry.

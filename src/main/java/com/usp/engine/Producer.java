@@ -14,13 +14,16 @@ import java.util.Map;
 @Service
 public class Producer {
 
+    private static final Logger logger= LoggerFactory.getLogger(Producer.class);
+
     @Value("${order-submission.topic-name}")
     private String topicName;
 
-    private static final Logger logger= LoggerFactory.getLogger(Producer.class);
-
     @Autowired
-    KafkaTemplate<String, String > kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+      /* @Autowired
+        private KafkaTemplate<String, Greeting> greetingKafkaTemplate;*/
 
     public Map<String,String> publish(String orderId){
         logger.info(String.format("publish started for orderId %s",orderId));
@@ -35,6 +38,17 @@ public class Producer {
         return result;
 
     }
+
+      /*  public void sendMessageToPartion(String message, int partition) {
+            kafkaTemplate.send(partionedTopicName, partition, message);
+        }*/
+
+/*
+        public void sendGreetingMessage(Greeting greeting) {
+            greetingKafkaTemplate.send(greetingTopicName, greeting);
+        }
+*/
+
 
 
 

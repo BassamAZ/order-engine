@@ -15,14 +15,14 @@ public class Consumer {
     private static final Logger logger = LoggerFactory.getLogger(Consumer.class);
 
     @Autowired
-    KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @Value("${order-submission.topic-name}")
     private String topicName;
 
 
-    @KafkaListener(concurrency = "${order-submission.num-threads}", topics = "${order-submission.topic-name}", groupId = "${spring.kafka.consumer.group-id}")
-    public void consume(String message, Acknowledgment acknowledgment) {
+    @KafkaListener( containerFactory = "orderFulfillmentKafkaListenerContainerFactory",concurrency = "${order-submission.num-threads}", topics = "${order-submission.topic-name}", groupId = "${order-submission.group-id}")
+    public void consume(String message) {
 
         logger.info(String.format("**Main** consume started for message %s", message));
 
@@ -35,16 +35,14 @@ public class Consumer {
         if (message.equalsIgnoreCase("fail")) {
             logger.info(String.format("**Main** consume FAILED for message %s", message));
 
-            acknowledgment.acknowledge();
             throw new RuntimeException("consume FAILED for message " + message);
         }
 
-        acknowledgment.acknowledge();
         logger.info(String.format("**Main** consume finished for message %s", message));
     }
 
-    @KafkaListener(id = "consumeDlt",autoStartup = "false", concurrency = "${order-submission.num-threads}", topics = "${order-submission.topic-name-dlt}", groupId = "${order-submission.group-id-dlt}")
-    public void consumeDlt(String message, Acknowledgment acknowledgment) {
+    @KafkaListener(containerFactory = "orderFulfillmentDTLKafkaListenerContainerFactory",id = "consumeDlt",autoStartup = "false", concurrency = "${order-submission.num-threads}", topics = "${order-submission.topic-name-dlt}", groupId = "${order-submission.group-id-dlt}")
+    public void consumeDlt(String message) {
 
         logger.info(String.format("**DLT** consume started for message %s", message));
 
@@ -57,7 +55,7 @@ public class Consumer {
         message = "success";
         kafkaTemplate.send(topicName, message);
 
-        acknowledgment.acknowledge();
+        //acknowledgment.acknowledge();
         logger.info(String.format("**DLT** consume finished for message %s", message));
 
     }
